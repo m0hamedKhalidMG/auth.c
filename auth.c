@@ -1,52 +1,108 @@
 #include <stdio.h>
 #include <string.h>
-
+#include <stdbool.h> 
 struct User
 {
     char username[100];
     char password[100];
 };
 
-void Register(struct User users[], int *currentindex)
+    union state{
+    struct {
+        int type; 
+        int active;
+    } integerData;
+    struct {
+        int type;
+        bool active;
+    } boolData;
+};
+struct UserState {
+    struct User user;
+    union state userState;
+};
+void Register(struct UserState users[], int *currentindex,union state data)
 {
-    struct User _user;
+
+    struct UserState _user;
     printf("Enter your name: ");
-    scanf("%s", _user.username);
-    for (int i = 0; i < *currentindex; i++)
+    scanf("%s", _user.user.username);
+    for (int i = 0; i < * currentindex; i++)
     {
 
-        if (strcmp(users[i].username, _user.username) == 0)
+        if (strcmp(users[i].user.username, _user.user.username) == 0)
         {
             printf("Username already exists.\n");
             return;
         }
     }
     printf("Enter your password: ");
-    scanf("%s", _user.password);
+    scanf("%s", _user.user.password);
+    printf("do you want active this user?.\n");
+ printf("Enter true or false or 0 or 1: ");
+     char input[10];
+    scanf("%s", input);
+       if (strcmp(input, "true") == 0) {
+        data.boolData.type = 1;
+        data.boolData.active=true;
+} else if (strcmp(input, "false") == 0) {
+ data.boolData.type = 1;
+ data.boolData.active=false;
+    
+}
+else if (strcmp(input, "0") == 0) {
+ data.integerData.type = 1;
+ data.integerData.active=0;
+    
+}else if (strcmp(input, "1") == 0) {
+ data.integerData.type = 1;
+ data.integerData.active=1;
+    
+}
+
+_user.userState=data;
     users[*currentindex] = _user;
-    (*currentindex)++;
+        (*currentindex)++;
+        
+
 
     printf("Registration successful.\n");
 }
 
-int loginUser(struct User users[], int currentindex, char username[], char password[])
+int loginUser(struct UserState users[], int currentindex, char username[], char password[])
 {
     for (int i = 0; i < currentindex; i++)
     {
-
-        if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, password) == 0)
+        if (strcmp(users[i].user.username, username) == 0 && strcmp(users[i].user.password, password) == 0 )
         {
-
+        if(users[i].userState.integerData.active==1||users[i].userState.boolData.active==true){
             return i;
         }
-    }
+        else{
+                       printf("not active user.\n");
 
-    return -1;
+                return -1;
+}
+
+           
+        }
+        
+        }
+
+
+        
+    
+             printf("Invalid username or password.\n");
+             
+               return -1;
+    
+
 }
 
 int main()
 {
-    struct User users[1000];
+        union state _state;        
+    struct UserState users[1000];
     int currentindex = 0;
     int state;
     char username[100];
@@ -62,7 +118,7 @@ int main()
         switch (state)
         {
         case 1:
-            Register(users, &currentindex);
+            Register(users, &currentindex,_state);
             break;
         case 2:
             printf("Enter your username: ");
@@ -74,12 +130,10 @@ int main()
 
             if (loggedInUserIndex != -1)
             {
-                printf("Login successful. Welcome, %s!\n", users[loggedInUserIndex].username);
+                printf("Login successful. Welcome, %s!\n", users[loggedInUserIndex].user.username);
             }
-            else
-            {
-                printf("Invalid username or password.\n");
-            }
+         
+           
             break;
         case 3:
             printf("logout!\n");
